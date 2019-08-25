@@ -45,7 +45,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_authentication);
 
         fileName = getExternalCacheDir().getAbsolutePath();
-        fileName += "/confianza_azteca/audio.3gp";
+        fileName += "/audio.3gp";
 
         Log.d("file_name", fileName);
 
@@ -127,7 +127,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     private void stopRecording() {
-        //recorder.stop();
+        recorder.stop();
         recorder.release();
         recorder = null;
 
@@ -153,10 +153,11 @@ public class AuthenticationActivity extends AppCompatActivity {
         try {
             recorder.prepare();
         } catch (IOException e) {
+            Log.e("RecordError", e.getMessage());
             Toast.makeText(this, "Ocurrió un error iniciando la grabación.", Toast.LENGTH_SHORT).show();
         }
 
-        //recorder.start();
+        recorder.start();
     }
 
     @Override
