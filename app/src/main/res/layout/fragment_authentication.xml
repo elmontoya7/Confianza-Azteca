@@ -86,6 +86,14 @@
                 android:src="@drawable/ic_success"
                 android:visibility="invisible"/>
 
+            <ImageView
+                android:id="@+id/fail_selfie"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_error"
+                android:visibility="invisible" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -121,6 +129,14 @@
                 android:src="@drawable/ic_success"
                 android:visibility="invisible"/>
 
+            <ImageView
+                android:id="@+id/fail_record"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_error"
+                android:visibility="invisible"/>
+
         </LinearLayout>
 
     </LinearLayout>
@@ -133,11 +149,12 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="40dp"
         android:background="@color/colorPrimary"
+        android:fontFamily="sans-serif-medium"
         android:foreground="?attr/selectableItemBackground"
         android:paddingHorizontal="30dp"
-        android:fontFamily="sans-serif-medium"
         android:textColor="@android:color/white"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:visibility="visible" />
 
     <ImageView
         android:id="@+id/record_btn"
@@ -145,7 +162,9 @@
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
         android:clickable="true"
-        android:layout_marginBottom="40dp"/>
+        android:src="@drawable/ic_rec_button"
+        android:visibility="gone" />
 
 </RelativeLayout>

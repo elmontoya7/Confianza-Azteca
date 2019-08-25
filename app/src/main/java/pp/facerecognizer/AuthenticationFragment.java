@@ -1,6 +1,7 @@
 package pp.facerecognizer;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaRecorder;
@@ -19,12 +20,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.DexterError;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.PermissionRequestErrorListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
 import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -36,12 +46,10 @@ public class AuthenticationFragment extends Fragment {
     private TextView lastAccessText;
     private static String PREFS_NAME = "record";
     private int SELFIE_REQUEST_CODE = 100;
-    private ImageView successSelfie, successRecord, recordBtn;
+    private ImageView successSelfie, successRecord, recordBtn, failSelfie, failRecord;
     private boolean selfie = false;
     private boolean voice = false;
     private boolean startRecording = true;
-    private MediaRecorder recorder;
-    private String fileName;
     private LinearLayout selfieLayout, recordLayout;
 
     private int validation;
@@ -53,7 +61,7 @@ public class AuthenticationFragment extends Fragment {
         FINISH
     }
 
-    private State currentState = State.SELFIE;
+    public State currentState = State.SELFIE;
 
     public AuthenticationFragment() {
         // Required empty public constructor
@@ -90,9 +98,6 @@ public class AuthenticationFragment extends Fragment {
 
         TextView lastAccessText = view.findViewById(R.id.last_access_text);
 
-        fileName = getActivity().getExternalCacheDir().getAbsolutePath();
-        fileName += "/confianza_azteca/audio.3gp";
-
         SharedPreferences settings = getActivity().getSharedPreferences(PREFS_NAME, 0);
         String lastAccess = settings.getString("lastAccess", " día de hoy");
 
@@ -108,11 +113,13 @@ public class AuthenticationFragment extends Fragment {
 
         successRecord = view.findViewById(R.id.success_record);
         successSelfie = view.findViewById(R.id.success_selfie);
+        failSelfie = view.findViewById(R.id.fail_selfie);
+        failRecord = view.findViewById(R.id.fail_record);
         recordBtn = view.findViewById(R.id.record_btn);
         recordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onRecord();
+                ((AuthenticationActivity)getActivity()).onRecord();
             }
         });
 
@@ -121,14 +128,18 @@ public class AuthenticationFragment extends Fragment {
         return view;
     }
 
-    private void updateButtonState () {
+    public void updateButtonState () {
+        button.setVisibility(View.VISIBLE);
+        recordBtn.setVisibility(View.GONE);
+
         switch (currentState) {
             case SELFIE:
                 button.setText("Iniciar autenticación");
                 break;
             case VOICE:
                 button.setText("Iniciar grabación de voz");
-                button.setVisibility(View.INVISIBLE);
+                button.setVisibility(View.GONE);
+                recordBtn.setVisibility(View.VISIBLE);
                 break;
             case FINISH:
                 button.setText("Terminar");
@@ -165,7 +176,11 @@ public class AuthenticationFragment extends Fragment {
         if (requestCode == SELFIE_REQUEST_CODE) {
             Boolean recognized = data.getBooleanExtra("recognized", false);
             selfie = recognized;
-            successSelfie.setVisibility(View.VISIBLE);
+            if (recognized) {
+                successSelfie.setVisibility(View.VISIBLE);
+            } else {
+                failSelfie.setVisibility(View.VISIBLE);
+            }
         }
 
         updateButtonState();
@@ -173,46 +188,5 @@ public class AuthenticationFragment extends Fragment {
 
     public String getMonth(int month) {
         return new DateFormatSymbols().getMonths()[month];
-    }
-
-    private void onRecord() {
-        if (startRecording) {
-            startRecording();
-        } else {
-            stopRecording();
-        }
-
-        startRecording = !startRecording;
-    }
-
-    private void stopRecording() {
-        recorder.stop();
-        recorder.release();
-        recorder = null;
-    }
-
-    private void startRecording() {
-        recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setOutputFile(fileName);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-        try {
-            recorder.prepare();
-        } catch (IOException e) {
-            Toast.makeText(getActivity(), "Ocurrió un error iniciando la grabación.", Toast.LENGTH_SHORT).show();
-        }
-
-        recorder.start();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (recorder != null) {
-            recorder.release();
-            recorder = null;
-        }
     }
 }
